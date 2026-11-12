@@ -13,7 +13,7 @@ import com.github.gleberphant.appagendamentos.ui.theme.AppAgendamentosTheme
 @Composable
 fun AppNavigator() {
     val navController = rememberNavController()
-    val agendamentoController : AgendamentoController = viewModel()
+    val agendamentoController: AgendamentoController = viewModel()
 
     NavHost(
         navController = navController, startDestination = "home"
@@ -23,12 +23,11 @@ fun AppNavigator() {
             PageListarAgendamentos(
                 agendamentoController = agendamentoController,
                 funNovoAgendamento = { navController.navigate("cadastro") },
-                funEditarAgendamento = { agendamentoID -> navController.navigate("cadastro/$agendamentoID") }
+                funEditarAgendamento = { id -> navController.navigate("cadastro/$id") }
             )
         }
 
         composable ( route="cadastro" ){
-
             PageCriaAgendamento(
                 agendamentoControler = agendamentoController,
                 agendamentoID = null,
@@ -36,7 +35,12 @@ fun AppNavigator() {
             )
         }
 
-        composable ( route="cadastro/$id"){
+        composable ( route="cadastro/{id}"){
+            backStackEntry ->
+
+            val idStr = backStackEntry.arguments?.getString("id")
+            val id = idStr?.toIntOrNull() ?: 0
+
             PageCriaAgendamento(
                 agendamentoControler = agendamentoController,
                 agendamentoID = id,
