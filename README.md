@@ -1,3 +1,22 @@
+<div style="text-align: center;">
+
+![LOGOPUC](https://www.pucpr.br/wp-content/themes/pucpr/_assets/images/logo-pucpr-vermelha.svg)
+
+![Static Badge](https://img.shields.io/badge/go-repo-blue?style=for-the-badge)
+![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
+
+Desenvolvido por HANDERSON GLEBER (gr4v4t1nh4)
+
+
+<p style="text-align: center;">Gostou do projeto? Por favor considere <a href="http://link.mercadopago.com.br/handersongleber">fazer uma doação</a> para ajudar a melhorá-lo!</p>
+
+</div>
+
+
+
+
+
 # AppAgendamentos ⚖️
 
 Aplicativo Android nativo para **agenda coletiva corporativa de escritório de advocacia**, desenvolvido com **Kotlin**, **Jetpack Compose**, **Material 3** e **Firebase Cloud Firestore**.
