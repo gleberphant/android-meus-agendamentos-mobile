@@ -1,5 +1,6 @@
 package com.github.gleberphant.appagendamentos.views
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +14,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.github.gleberphant.appagendamentos.controllers.AgendamentoController
@@ -27,38 +34,62 @@ import java.util.Locale
 fun PageListarAgendamentos(
     agendamentoController: AgendamentoController,
     funNovoAgendamento: () -> Unit,
-    funEditarAgendamento: (Int) -> Unit
+    funEditarAgendamento: (String) -> Unit
 ) {
+    var exibirConcluidos by remember { mutableStateOf(false) }
+
+    val agendamentosFiltrados = if (exibirConcluidos) {
+        agendamentoController.agendamentos
+    } else {
+        agendamentoController.agendamentos.filter { !it.status }
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = funNovoAgendamento) {
                 Text(text = "+")
             }
-        })
-    { paddingValues ->
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Agendamentos",
-                style = MaterialTheme.typography.titleLarge
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Agendamentos",
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                OutlinedButton(
+                    onClick = { exibirConcluidos = !exibirConcluidos }
+                ) {
+                    Text(
+                        text = if (exibirConcluidos) "Ocultar Concluídos" else "Mostrar Concluídos"
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
-                items(agendamentoController.agendamentos) { agendamento ->
+                items(
+                    items = agendamentosFiltrados,
+                    key = { it.id }
+                ) { agendamento ->
                     CardAgendamento(
                         item = agendamento,
                         btnEditar = { funEditarAgendamento(agendamento.id) },
                         btnConcluir = { agendamentoController.concluirAgendamento(agendamento.id) },
-                        btnExcluir = { agendamentoController.removerPorId(agendamento.id) })
+                        btnExcluir = { agendamentoController.removerPorId(agendamento.id) }
+                    )
                 }
             }
         }
@@ -71,12 +102,11 @@ fun CardAgendamento(
     btnEditar: () -> Unit,
     btnConcluir: () -> Unit,
     btnExcluir: () -> Unit
-
 ) {
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     Spacer(modifier = Modifier.height(16.dp))
-    Card() {
+    Card {
         Column(
             modifier = Modifier
                 .padding(12.dp)
@@ -93,17 +123,16 @@ fun CardAgendamento(
             )
 
             Text(
-                text = if(item.status) "concluído" else "pendente",
+                text = if (item.status) "concluído" else "pendente",
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Row() {
+            Row {
                 Button(
                     onClick = btnEditar
                 ) { Text("Editar") }
 
-
-                if(!item.status) {
+                if (!item.status) {
                     Button(
                         onClick = btnConcluir,
                         colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
@@ -122,3 +151,4 @@ fun CardAgendamento(
         }
     }
 }
+

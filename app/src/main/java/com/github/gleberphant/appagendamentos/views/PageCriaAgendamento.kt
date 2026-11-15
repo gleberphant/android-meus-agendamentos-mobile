@@ -31,7 +31,7 @@ import java.util.Locale
 @Composable
 fun PageCriaAgendamento (
     agendamentoControler: AgendamentoController,
-    agendamentoID: Int?,
+    agendamentoID: String?,
     voltar: () -> Unit
 ){
     val agendamento = if (agendamentoID != null) agendamentoControler.procurarPorId(agendamentoID) else null
@@ -86,7 +86,7 @@ fun PageCriaAgendamento (
                 onClick = {
                     val parsedDate = try { dateFormat.parse(dataStr) } catch (e: Exception) { Date() }
                     val novoAgendamento = Agendamento(
-                        id = agendamentoID ?: 0,
+                        id = agendamentoID ?: "",
                         data = parsedDate ?: Date(),
                         descricao = descricao,
                         status = agendamento?.status ?: false

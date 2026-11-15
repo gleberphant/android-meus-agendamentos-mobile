@@ -1,61 +1,94 @@
 package com.github.gleberphant.appagendamentos.controllers
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
-import com.github.gleberphant.appagendamentos.data.AgendamentoDbHelper
 import com.github.gleberphant.appagendamentos.models.Agendamento
+import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AgendamentoController(application: Application) : AndroidViewModel(application) {
-    private val dbHelper = AgendamentoDbHelper(application)
+    private val db = FirebaseFirestore.getInstance()
+    private val colletionRef = db.collection("agendamentos")
 
     var agendamentos = mutableStateListOf<Agendamento>()
         private set
 
     init {
-        carregarAgendamentos()
+        carregarAgendamentosDoFirebase()
     }
 
-    private fun carregarAgendamentos() {
-        agendamentos.clear()
-        agendamentos.addAll(dbHelper.listar())
+    private fun carregarAgendamentosDoFirebase() {
+        colletionRef.addSnapshotListener { snapshots, error ->
+            if (error != null) {
+                Log.e("AgendamentoController", "Erro ao carregar do Firebase: ${error.message}", error)
+                return@addSnapshotListener
+            }
+            if (snapshots != null) {
+                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val lista = snapshots.documents.mapNotNull { doc ->
+                    try {
+                        val id = doc.id
+                        val rawData = doc.get("data")
+                        val data: Date = when (rawData) {
+                            is com.google.firebase.Timestamp -> rawData.toDate()
+                            is Date -> rawData
+                            is Long -> Date(rawData)
+                            is String -> try { dateFormat.parse(rawData) ?: Date() } catch (e: Exception) { Date() }
+                            else -> Date()
+                        }
+
+                        val descricao = doc.getString("descricao") ?: ""
+                        val status = doc.getBoolean("status") ?: false
+
+                        Agendamento(id, data, descricao, status)
+                    } catch (e: Exception) {
+                        Log.e("AgendamentoController", "Erro ao converter documento ${doc.id}", e)
+                        null
+                    }
+                }
+
+                agendamentos.clear()
+                agendamentos.addAll(lista)
+            }
+        }
     }
 
     fun criar(novo: Agendamento) {
-        dbHelper.inserir(novo)
-        carregarAgendamentos()
+        val dados = mapOf(
+            "data" to novo.data,
+            "descricao" to novo.descricao,
+            "status" to novo.status
+        )
+        colletionRef.add(dados)
     }
 
-    fun concluirAgendamento(id: Int) {
-        val agendamento = dbHelper.buscarPorId(id)
-        if (agendamento != null) {
-            agendamento.status = true
-            dbHelper.atualizar(agendamento)
-            carregarAgendamentos()
-        }
+    fun concluirAgendamento(id: String) {
+        colletionRef.document(id).update("status", true)
     }
 
-    fun listar(): MutableList<Agendamento> {
+    fun listar(): List<Agendamento> {
         return agendamentos
     }
 
-    fun procurarPorId(id: Int): Agendamento? {
-        return dbHelper.buscarPorId(id)
+    fun procurarPorId(id: String): Agendamento? {
+        return agendamentos.find { it.id == id }
     }
 
-    fun editarPorId(id: Int, novo: Agendamento) {
-        val agendamento = dbHelper.buscarPorId(id)
-        if (agendamento != null) {
-            agendamento.descricao = novo.descricao
-            agendamento.data = novo.data
-            agendamento.status = novo.status
-            dbHelper.atualizar(agendamento)
-            carregarAgendamentos()
-        }
+    fun editarPorId(id: String, novo: Agendamento) {
+        val dados = mapOf(
+            "data" to novo.data,
+            "descricao" to novo.descricao,
+            "status" to novo.status
+        )
+        colletionRef.document(id).set(dados)
     }
 
-    fun removerPorId(id: Int) {
-        dbHelper.deletar(id)
-        carregarAgendamentos()
+    fun removerPorId(id: String) {
+        colletionRef.document(id).delete()
     }
 }
+

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "713974954202",
+    "project_id": "appagendamento-955e8",
+    "storage_bucket": "appagendamento-955e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:713974954202:android:9278eee8072961bc1a8de3",
+        "android_client_info": {
+          "package_name": "com.github.gleberphant.appagendamentos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXPRDyv0RrQyxG8YyoQ9G0asu0fOnsGGY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

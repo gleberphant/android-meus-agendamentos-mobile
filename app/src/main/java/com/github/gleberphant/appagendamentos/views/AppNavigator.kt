@@ -23,28 +23,25 @@ fun AppNavigator() {
             PageListarAgendamentos(
                 agendamentoController = agendamentoController,
                 funNovoAgendamento = { navController.navigate("cadastro") },
-                funEditarAgendamento = { id -> navController.navigate("cadastro/$id") }
+                funEditarAgendamento = { id -> navController.navigate("editar/$id") }
             )
         }
 
-        composable ( route="cadastro" ){
+        composable(route = "cadastro") {
             PageCriaAgendamento(
                 agendamentoControler = agendamentoController,
                 agendamentoID = null,
-                voltar = { navController.navigate("home") }
+                voltar = { navController.popBackStack() }
             )
         }
 
-        composable ( route="cadastro/{id}"){
-            backStackEntry ->
-
-            val idStr = backStackEntry.arguments?.getString("id")
-            val id = idStr?.toIntOrNull() ?: 0
+        composable(route = "editar/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")
 
             PageCriaAgendamento(
                 agendamentoControler = agendamentoController,
                 agendamentoID = id,
-                voltar = { navController.navigate("home") }
+                voltar = { navController.popBackStack() }
             )
         }
     }
